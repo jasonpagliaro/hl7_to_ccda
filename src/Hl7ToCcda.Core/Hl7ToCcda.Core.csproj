@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>Hl7ToCcda.Core</PackageId>
+    <Description>Reusable HL7 to pragmatic CCD conversion library built on a vendored subset of Microsoft FHIR-Converter.</Description>
+    <AssemblyName>Hl7ToCcda.Core</AssemblyName>
+    <RootNamespace>Hl7ToCcda.Core</RootNamespace>
+    <IsPackable>true</IsPackable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Antlr4.Runtime.Standard" Version="4.8.0" />
+    <PackageReference Include="DotLiquid" Version="2.2.580" />
+    <PackageReference Include="Ensure.That" Version="10.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NJsonSchema" Version="10.7.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <Compile Include="../../vendor/fhir-converter/src/Microsoft.Health.Fhir.Liquid.Converter/**/*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="../../vendor/fhir-converter/src/Microsoft.Health.Fhir.Liquid.Converter/Resources.resx">
+      <LogicalName>Microsoft.Health.Fhir.Liquid.Converter.Resources.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../vendor/fhir-converter/data/Templates/Json/Schema/meta-schema.json">
+      <LogicalName>Hl7ToCcda.Core.meta-schema.json</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="../../vendor/fhir-converter/data/Templates/Hl7v2/**/*">
+      <LogicalName>VendoredTemplates/Hl7v2/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="../../vendor/fhir-converter/LICENSE" Pack="true" PackagePath="vendor/fhir-converter/" />
+    <None Include="../../vendor/fhir-converter/NOTICE" Pack="true" PackagePath="vendor/fhir-converter/" />
+  </ItemGroup>
+
+</Project>
