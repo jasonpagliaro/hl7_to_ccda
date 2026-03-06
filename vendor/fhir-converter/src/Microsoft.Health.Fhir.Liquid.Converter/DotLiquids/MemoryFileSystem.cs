@@ -32,7 +32,8 @@ namespace Microsoft.Health.Fhir.Liquid.Converter.DotLiquids
 
         public Template GetTemplate(Context context, string templateName)
         {
-            var templatePath = GetTemplatePath(context, templateName);
+            var normalizedTemplateName = NormalizeTemplateName(templateName);
+            var templatePath = GetTemplatePath(context, normalizedTemplateName);
             if (!string.IsNullOrEmpty(templatePath))
             {
                 var template = GetTemplate(templatePath);
@@ -42,7 +43,7 @@ namespace Microsoft.Health.Fhir.Liquid.Converter.DotLiquids
                 }
             }
 
-            return GetTemplate(templateName) ?? throw new RenderException(FhirConverterErrorCode.TemplateNotFound, string.Format(Resources.TemplateNotFound, templateName));
+            return GetTemplate(normalizedTemplateName) ?? throw new RenderException(FhirConverterErrorCode.TemplateNotFound, string.Format(Resources.TemplateNotFound, normalizedTemplateName));
         }
 
         public Template GetTemplate(string templateName, string rootTemplateParentPath = "")
@@ -52,6 +53,7 @@ namespace Microsoft.Health.Fhir.Liquid.Converter.DotLiquids
                 return null;
             }
 
+            templateName = NormalizeTemplateName(templateName);
             templateName = TemplateUtility.GetFormattedTemplatePath(templateName, rootTemplateParentPath);
 
             foreach (var templates in _templateCollection)
@@ -70,9 +72,19 @@ namespace Microsoft.Health.Fhir.Liquid.Converter.DotLiquids
             // Get root template's parent path. This to account for cases where the root template is in a subfolder.
             var rootTemplateParentPath = context[TemplateUtility.RootTemplateParentPathScope]?.ToString();
 
-            var templatePath = context[templateName]?.ToString() ?? templateName;
+            var templatePath = NormalizeTemplateName(context[templateName]?.ToString() ?? templateName);
 
             return TemplateUtility.GetFormattedTemplatePath(templatePath, rootTemplateParentPath);
+        }
+
+        private static string NormalizeTemplateName(string templateName)
+        {
+            if (string.IsNullOrWhiteSpace(templateName))
+            {
+                return templateName;
+            }
+
+            return templateName.Trim().Trim('\'', '"');
         }
     }
 }
