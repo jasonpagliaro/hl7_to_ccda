@@ -73,6 +73,19 @@ public class VendoredHl7TemplateStoreTests
         Assert.Contains("\"reference\":\"Patient/123\"", output);
     }
 
+    [Theory]
+    [InlineData("VendoredTemplates/Hl7v2/Reference/Coverage/_Beneficiary.liquid", "Reference/Coverage/_Beneficiary.liquid")]
+    [InlineData("VendoredTemplates.Hl7v2.Reference.Coverage._Beneficiary.liquid", "Reference/Coverage/_Beneficiary.liquid")]
+    [InlineData("Hl7ToCcda.Core.VendoredTemplates.Hl7v2.Reference.Coverage._Beneficiary.liquid", "Reference/Coverage/_Beneficiary.liquid")]
+    [InlineData("VendoredTemplates.Hl7v2.schema.Patient.schema.json", "schema/Patient.schema.json")]
+    public void TryGetTemplateRelativePath_SupportsSlashAndDotSeparatedManifestNames(string resourceName, string expectedRelativePath)
+    {
+        bool resolved = VendoredHl7TemplateStore.TryGetTemplateRelativePath(resourceName, out string relativePath);
+
+        Assert.True(resolved);
+        Assert.Equal(expectedRelativePath, relativePath);
+    }
+
     private static Context CreateContext(ITemplateFileSystem fileSystem)
     {
         var context = new Context(

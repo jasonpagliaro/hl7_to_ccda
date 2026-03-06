@@ -7,7 +7,8 @@ namespace Hl7ToCcda.Core.Conversion;
 
 internal sealed class VendoredHl7TemplateStore
 {
-    private const string TemplateResourcePrefix = "VendoredTemplates/Hl7v2/";
+    private const string SlashSeparatedTemplateResourcePrefix = "VendoredTemplates/Hl7v2/";
+    private const string DotSeparatedTemplateResourcePrefix = "VendoredTemplates.Hl7v2.";
     private readonly Dictionary<string, string> _rootTemplateLookup;
 
     public VendoredHl7TemplateStore()
@@ -35,8 +36,13 @@ internal sealed class VendoredHl7TemplateStore
         string[] resourceNames = assembly.GetManifestResourceNames();
         var templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (string resourceName in resourceNames.Where(name => name.StartsWith(TemplateResourcePrefix, StringComparison.Ordinal)))
+        foreach (string resourceName in resourceNames)
         {
+            if (!TryGetTemplateRelativePath(resourceName, out string relativePath))
+            {
+                continue;
+            }
+
             using Stream? stream = assembly.GetManifestResourceStream(resourceName);
             if (stream is null)
             {
@@ -44,7 +50,6 @@ internal sealed class VendoredHl7TemplateStore
             }
 
             using var reader = new StreamReader(stream);
-            string relativePath = resourceName[TemplateResourcePrefix.Length..].Replace('\\', '/');
             templates[relativePath] = reader.ReadToEnd();
         }
 
@@ -54,6 +59,26 @@ internal sealed class VendoredHl7TemplateStore
         }
 
         return templates;
+    }
+
+    internal static bool TryGetTemplateRelativePath(string resourceName, out string relativePath)
+    {
+        int slashPrefixIndex = resourceName.IndexOf(SlashSeparatedTemplateResourcePrefix, StringComparison.Ordinal);
+        if (slashPrefixIndex >= 0)
+        {
+            relativePath = resourceName[(slashPrefixIndex + SlashSeparatedTemplateResourcePrefix.Length)..].Replace('\\', '/');
+            return !string.IsNullOrEmpty(relativePath);
+        }
+
+        int dotPrefixIndex = resourceName.IndexOf(DotSeparatedTemplateResourcePrefix, StringComparison.Ordinal);
+        if (dotPrefixIndex >= 0)
+        {
+            relativePath = ConvertDottedTemplateResourceName(resourceName[(dotPrefixIndex + DotSeparatedTemplateResourcePrefix.Length)..]);
+            return !string.IsNullOrEmpty(relativePath);
+        }
+
+        relativePath = string.Empty;
+        return false;
     }
 
     private static Dictionary<string, Template> CreateParsedTemplateStore(IReadOnlyDictionary<string, string> rawTemplates)
@@ -104,5 +129,30 @@ internal sealed class VendoredHl7TemplateStore
         }
 
         return normalizedTemplatePath;
+    }
+
+    private static string ConvertDottedTemplateResourceName(string dottedResourceName)
+    {
+        if (string.IsNullOrWhiteSpace(dottedResourceName))
+        {
+            return string.Empty;
+        }
+
+        if (dottedResourceName.EndsWith(".schema.json", StringComparison.OrdinalIgnoreCase))
+        {
+            return dottedResourceName[..^".schema.json".Length].Replace('.', '/') + ".schema.json";
+        }
+
+        if (dottedResourceName.EndsWith(".liquid", StringComparison.OrdinalIgnoreCase))
+        {
+            return dottedResourceName[..^".liquid".Length].Replace('.', '/') + ".liquid";
+        }
+
+        if (dottedResourceName.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+        {
+            return dottedResourceName[..^".json".Length].Replace('.', '/') + ".json";
+        }
+
+        return dottedResourceName.Replace('.', '/');
     }
 }
