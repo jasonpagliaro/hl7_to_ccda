@@ -33,12 +33,16 @@ namespace Microsoft.Health.Fhir.Liquid.Converter.DotLiquids
         public Template GetTemplate(Context context, string templateName)
         {
             var templatePath = GetTemplatePath(context, templateName);
-            if (templatePath == null)
+            if (!string.IsNullOrEmpty(templatePath))
             {
-                throw new RenderException(FhirConverterErrorCode.TemplateNotFound, string.Format(Resources.TemplateNotFound, templateName));
+                var template = GetTemplate(templatePath);
+                if (template != null)
+                {
+                    return template;
+                }
             }
 
-            return GetTemplate(templatePath) ?? throw new RenderException(FhirConverterErrorCode.TemplateNotFound, string.Format(Resources.TemplateNotFound, templatePath));
+            return GetTemplate(templateName) ?? throw new RenderException(FhirConverterErrorCode.TemplateNotFound, string.Format(Resources.TemplateNotFound, templateName));
         }
 
         public Template GetTemplate(string templateName, string rootTemplateParentPath = "")
