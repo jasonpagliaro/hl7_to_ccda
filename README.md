@@ -192,6 +192,14 @@ Build the frontend:
 npm run build:web
 ```
 
+Package the reusable library:
+
+```bash
+dotnet pack src/Hl7ToCcda.Core/Hl7ToCcda.Core.csproj -o artifacts/packages
+```
+
+CI is defined in `.github/workflows/ci.yml` and runs the same .NET tests, web checks, and package smoke test on pushes and pull requests.
+
 ## Third-party attribution
 
 This repo vendors portions of [microsoft/FHIR-Converter](https://github.com/microsoft/FHIR-Converter) under the MIT license.
@@ -200,4 +208,3 @@ This repo vendors portions of [microsoft/FHIR-Converter](https://github.com/micr
 - Preserved files:
   - `vendor/fhir-converter/LICENSE`
   - `vendor/fhir-converter/NOTICE`
-
