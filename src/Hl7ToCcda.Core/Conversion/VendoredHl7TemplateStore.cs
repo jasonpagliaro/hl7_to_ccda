@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Reflection;
 using DotLiquid;
 using Microsoft.Health.Fhir.Liquid.Converter;
@@ -7,6 +8,7 @@ namespace Hl7ToCcda.Core.Conversion;
 
 internal sealed class VendoredHl7TemplateStore
 {
+    private const string TemplateArchiveResourceName = "VendoredTemplates/Hl7v2.zip";
     private const string SlashSeparatedTemplateResourcePrefix = "VendoredTemplates/Hl7v2/";
     private const string DotSeparatedTemplateResourcePrefix = "VendoredTemplates.Hl7v2.";
     private readonly Dictionary<string, string> _rootTemplateLookup;
@@ -33,8 +35,14 @@ internal sealed class VendoredHl7TemplateStore
     private static Dictionary<string, string> LoadRawTemplates()
     {
         Assembly assembly = typeof(VendoredHl7TemplateStore).Assembly;
+        Dictionary<string, string> templates = LoadRawTemplatesFromArchive(assembly);
+        if (templates.Count > 0)
+        {
+            return templates;
+        }
+
         string[] resourceNames = assembly.GetManifestResourceNames();
-        var templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (string resourceName in resourceNames)
         {
@@ -56,6 +64,26 @@ internal sealed class VendoredHl7TemplateStore
         if (templates.Count == 0)
         {
             throw new InvalidOperationException("No embedded HL7 templates were found in the core assembly.");
+        }
+
+        return templates;
+    }
+
+    private static Dictionary<string, string> LoadRawTemplatesFromArchive(Assembly assembly)
+    {
+        using Stream? archiveStream = assembly.GetManifestResourceStream(TemplateArchiveResourceName);
+        if (archiveStream is null)
+        {
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+
+        var templates = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        using var archive = new ZipArchive(archiveStream, ZipArchiveMode.Read, leaveOpen: false);
+        foreach (ZipArchiveEntry entry in archive.Entries.Where(entry => !string.IsNullOrEmpty(entry.Name)))
+        {
+            using Stream entryStream = entry.Open();
+            using var reader = new StreamReader(entryStream);
+            templates[entry.FullName.Replace('\\', '/')] = reader.ReadToEnd();
         }
 
         return templates;

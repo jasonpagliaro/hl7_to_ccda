@@ -33,8 +33,8 @@
     <EmbeddedResource Include="../../vendor/fhir-converter/data/Templates/Json/Schema/meta-schema.json">
       <LogicalName>Hl7ToCcda.Core.meta-schema.json</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="../../vendor/fhir-converter/data/Templates/Hl7v2/**/*">
-      <LogicalName>VendoredTemplates/Hl7v2/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    <EmbeddedResource Include="../../vendor/fhir-converter/data/Templates/Hl7v2.zip">
+      <LogicalName>VendoredTemplates/Hl7v2.zip</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 
