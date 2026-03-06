@@ -13,7 +13,7 @@ internal sealed class VendoredHl7TemplateStore
     public VendoredHl7TemplateStore()
     {
         var rawTemplates = LoadRawTemplates();
-        var parsedTemplates = TemplateUtility.ParseTemplates(rawTemplates);
+        var parsedTemplates = CreateParsedTemplateStore(rawTemplates);
         TemplateProvider = new TemplateProvider([parsedTemplates]);
         _rootTemplateLookup = parsedTemplates.Keys
             .Where(key => !key.Contains('/', StringComparison.Ordinal))
@@ -54,5 +54,55 @@ internal sealed class VendoredHl7TemplateStore
         }
 
         return templates;
+    }
+
+    private static Dictionary<string, Template> CreateParsedTemplateStore(IReadOnlyDictionary<string, string> rawTemplates)
+    {
+        var parsedTemplates = new Dictionary<string, Template>(StringComparer.OrdinalIgnoreCase);
+
+        foreach ((string relativePath, string content) in rawTemplates)
+        {
+            string normalizedRelativePath = relativePath.Replace('\\', '/');
+            string formattedRelativePath = TemplateUtility.GetTemplateKey(NormalizeTemplateResourcePath(normalizedRelativePath))
+                ?? string.Empty;
+            string rawTemplateKey = TemplateUtility.GetTemplateKey(normalizedRelativePath)
+                ?? string.Empty;
+
+            if (string.IsNullOrEmpty(formattedRelativePath))
+            {
+                continue;
+            }
+
+            Template parsedTemplate = TemplateUtility.ParseTemplate(formattedRelativePath, content);
+            parsedTemplates[formattedRelativePath] = parsedTemplate;
+
+            if (!string.Equals(rawTemplateKey, formattedRelativePath, StringComparison.OrdinalIgnoreCase))
+            {
+                parsedTemplates[rawTemplateKey] = parsedTemplate;
+            }
+        }
+
+        return parsedTemplates;
+    }
+
+    private static string NormalizeTemplateResourcePath(string templatePath)
+    {
+        var normalizedTemplatePath = templatePath.Replace('\\', '/');
+        var lastSlashIndex = normalizedTemplatePath.LastIndexOf('/');
+        if (lastSlashIndex < 0 || lastSlashIndex == normalizedTemplatePath.Length - 1)
+        {
+            return normalizedTemplatePath;
+        }
+
+        string prefix = normalizedTemplatePath[..(lastSlashIndex + 1)];
+        string fileName = normalizedTemplatePath[(lastSlashIndex + 1)..];
+        if (fileName.StartsWith('_') &&
+            !fileName.StartsWith("_CodeSystem.", StringComparison.OrdinalIgnoreCase) &&
+            !fileName.StartsWith("_ValueSet.", StringComparison.OrdinalIgnoreCase))
+        {
+            return prefix + fileName[1..];
+        }
+
+        return normalizedTemplatePath;
     }
 }

@@ -1,4 +1,9 @@
 using Hl7ToCcda.Core.Conversion;
+using DotLiquid;
+using DotLiquid.FileSystems;
+using Microsoft.Health.Fhir.Liquid.Converter.Utilities;
+using System.Globalization;
+using System.Threading;
 
 namespace Hl7ToCcda.Core.Tests;
 
@@ -23,5 +28,63 @@ public class VendoredHl7TemplateStoreTests
 
         Assert.True(resolved);
         Assert.Equal("ORU_R01", rootTemplate);
+    }
+
+    [Theory]
+    [InlineData("Reference/Coverage/Beneficiary")]
+    [InlineData("Reference/Coverage/_Beneficiary")]
+    [InlineData("'Reference/Coverage/Beneficiary'")]
+    [InlineData("\"Reference/Coverage/Beneficiary\"")]
+    public void TemplateFileSystem_ResolvesCoverageBeneficiarySnippetVariants(string templateName)
+    {
+        var store = new VendoredHl7TemplateStore();
+        var fileSystem = Assert.IsAssignableFrom<ITemplateFileSystem>(store.TemplateProvider.GetTemplateFileSystem());
+        var context = CreateContext(fileSystem);
+
+        Template? template = fileSystem.GetTemplate(context, templateName);
+
+        Assert.NotNull(template);
+    }
+
+    [Fact]
+    public void TemplateFileSystem_ResolvesTemplateFromContextVariable()
+    {
+        var store = new VendoredHl7TemplateStore();
+        var fileSystem = Assert.IsAssignableFrom<ITemplateFileSystem>(store.TemplateProvider.GetTemplateFileSystem());
+        var context = CreateContext(fileSystem);
+        context["coverageTemplate"] = "Reference/Coverage/Beneficiary";
+
+        Template? template = fileSystem.GetTemplate(context, "coverageTemplate");
+
+        Assert.NotNull(template);
+    }
+
+    [Fact]
+    public void IncludeRender_UsesCoverageBeneficiarySnippet()
+    {
+        var store = new VendoredHl7TemplateStore();
+        var fileSystem = Assert.IsAssignableFrom<ITemplateFileSystem>(store.TemplateProvider.GetTemplateFileSystem());
+        var context = CreateContext(fileSystem);
+        var template = Template.Parse("{% include 'Reference/Coverage/Beneficiary' ID: ID, REF: REF -%}");
+
+        string output = template.Render(RenderParameters.FromContext(context, CultureInfo.InvariantCulture));
+
+        Assert.Contains("\"beneficiary\"", output);
+        Assert.Contains("\"reference\":\"Patient/123\"", output);
+    }
+
+    private static Context CreateContext(ITemplateFileSystem fileSystem)
+    {
+        var context = new Context(
+            environments: [Hash.FromDictionary(new Dictionary<string, object> { ["ID"] = "coverage-1", ["REF"] = "Patient/123" })],
+            outerScope: new Hash(),
+            registers: Hash.FromDictionary(new Dictionary<string, object> { ["file_system"] = fileSystem }),
+            errorsOutputMode: ErrorsOutputMode.Rethrow,
+            maxIterations: 0,
+            formatProvider: CultureInfo.InvariantCulture,
+            cancellationToken: CancellationToken.None);
+
+        context[TemplateUtility.RootTemplateParentPathScope] = string.Empty;
+        return context;
     }
 }
