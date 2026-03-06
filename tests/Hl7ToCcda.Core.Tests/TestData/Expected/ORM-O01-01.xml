@@ -45,7 +45,7 @@
   <documentationOf>
     <serviceEvent>
       <code displayName="ambulatory" />
-      <effectiveTime value="10/20/2021 03:45:00" />
+      <effectiveTime value="2021-10-20T12:00:00+02:15" />
     </serviceEvent>
   </documentationOf>
   <component>
@@ -56,7 +56,7 @@
           <title>Problems</title>
           <text>
             <list>
-              <item>Traumatic brain injury 05/01/2020 04:15:09</item>
+              <item>Traumatic brain injury 2020-05-01T12:30:09+02:15</item>
             </list>
           </text>
         </section>
@@ -101,7 +101,7 @@
           <title>Encounters</title>
           <text>
             <list>
-              <item>ambulatory 10/20/2021 03:45:00</item>
+              <item>ambulatory 2021-10-20T12:00:00+02:15</item>
             </list>
           </text>
         </section>

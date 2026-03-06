@@ -44,7 +44,7 @@
   <documentationOf>
     <serviceEvent>
       <code displayName="Emergency" />
-      <effectiveTime value="02/08/2015 03:24:19 through 02/09/2015 03:24:19" />
+      <effectiveTime value="2015-02-08T11:34:19+01:10 through 2015-02-09T11:34:19+01:10" />
     </serviceEvent>
   </documentationOf>
   <component>
@@ -56,7 +56,7 @@
           <text>
             <list>
               <item>heartrate 1999-07-02</item>
-              <item>Enteric Culture 02/14/2002 22:15:00</item>
+              <item>Enteric Culture 2002-02-15T07:30:00+02:15</item>
               <item>result1</item>
               <item>result1 Salmonella species 2012-03-01</item>
             </list>
@@ -82,7 +82,7 @@
           <title>Encounters</title>
           <text>
             <list>
-              <item>Emergency pre-admission 02/08/2015 03:24:19 through 02/09/2015 03:24:19</item>
+              <item>Emergency pre-admission 2015-02-08T11:34:19+01:10 through 2015-02-09T11:34:19+01:10</item>
             </list>
           </text>
         </section>

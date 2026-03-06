@@ -45,7 +45,7 @@
   <documentationOf>
     <serviceEvent>
       <code displayName="ambulatory" />
-      <effectiveTime value="01/15/2021 06:45:10" />
+      <effectiveTime value="2021-01-15T16:00:10+02:15" />
     </serviceEvent>
   </documentationOf>
   <component>
@@ -56,7 +56,7 @@
           <title>Problems</title>
           <text>
             <list>
-              <item>Ulcerative Colitis 08/25/2021 01:20:25</item>
+              <item>Ulcerative Colitis 2021-08-25T11:40:25+04:20</item>
             </list>
           </text>
         </section>
@@ -78,7 +78,7 @@
           <title>Procedures</title>
           <text>
             <list>
-              <item>Biopsy of colon (procedure) active 09/24/2021 01:15:00</item>
+              <item>Biopsy of colon (procedure) active 2021-09-24T09:30:00+02:15</item>
             </list>
           </text>
         </section>
@@ -89,8 +89,8 @@
           <title>Encounters</title>
           <text>
             <list>
-              <item>ambulatory 01/15/2021 06:45:10</item>
-              <item>booked 09/24/2021 01:15:00</item>
+              <item>ambulatory 2021-01-15T16:00:10+02:15</item>
+              <item>booked 2021-09-24T09:30:00+02:15</item>
             </list>
           </text>
         </section>

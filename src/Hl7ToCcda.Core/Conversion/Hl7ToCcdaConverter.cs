@@ -57,7 +57,13 @@ internal sealed class Hl7ToCcdaConverter : IHl7ToCcdaConverter
 
         try
         {
-            bundle = JObject.Parse(fhirJson);
+            using var stringReader = new StringReader(fhirJson);
+            using var jsonReader = new JsonTextReader(stringReader)
+            {
+                DateParseHandling = DateParseHandling.None,
+            };
+
+            bundle = JObject.Load(jsonReader);
         }
         catch (JsonException ex)
         {

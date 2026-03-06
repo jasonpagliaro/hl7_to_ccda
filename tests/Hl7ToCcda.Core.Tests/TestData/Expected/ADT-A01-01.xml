@@ -45,7 +45,7 @@
   <documentationOf>
     <serviceEvent>
       <code displayName="Emergency" />
-      <effectiveTime value="02/08/2015 03:24:19" />
+      <effectiveTime value="2015-02-08T11:34:19+01:10" />
     </serviceEvent>
   </documentationOf>
   <component>
@@ -56,7 +56,7 @@
           <title>Problems</title>
           <text>
             <list>
-              <item>Stroke 01/25/2004 00:20:25</item>
+              <item>Stroke 2004-01-25T11:40:25+04:20</item>
               <item>Acute myocardial infarction</item>
             </list>
           </text>
@@ -95,9 +95,9 @@
           <text>
             <list>
               <item>unknown</item>
-              <item>Biopsy of colon, which was part of colonoscopy unknown 01/25/2005 03:40:00</item>
-              <item>Death Certification completed 11/02/2021 05:15:00</item>
-              <item>Autopsy Performed completed 11/02/2021 03:15:00 through 11/02/2021 04:15:00</item>
+              <item>Biopsy of colon, which was part of colonoscopy unknown 2005-01-25T11:40:00+01:00</item>
+              <item>Death Certification completed 2021-11-02T12:30:00+01:15</item>
+              <item>Autopsy Performed completed 2021-11-02T10:30:00+01:15 through 2021-11-02T11:30:00+01:15</item>
               <item>on-hold</item>
             </list>
           </text>
@@ -109,7 +109,7 @@
           <title>Encounters</title>
           <text>
             <list>
-              <item>Emergency pre-admission 02/08/2015 03:24:19</item>
+              <item>Emergency pre-admission 2015-02-08T11:34:19+01:10</item>
             </list>
           </text>
         </section>

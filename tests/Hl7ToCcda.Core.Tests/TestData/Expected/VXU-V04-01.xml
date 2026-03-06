@@ -45,7 +45,7 @@
   <documentationOf>
     <serviceEvent>
       <code displayName="Emergency" />
-      <effectiveTime value="02/08/2015 03:24:19" />
+      <effectiveTime value="2015-02-08T11:34:19+01:10" />
     </serviceEvent>
   </documentationOf>
   <component>
@@ -91,7 +91,7 @@
           <title>Encounters</title>
           <text>
             <list>
-              <item>Emergency pre-admission 02/08/2015 03:24:19</item>
+              <item>Emergency pre-admission 2015-02-08T11:34:19+01:10</item>
             </list>
           </text>
         </section>
