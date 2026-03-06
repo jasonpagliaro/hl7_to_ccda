@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "codex/**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    env:
+      DOTNET_NOLOGO: true
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Restore .NET solution
+        run: dotnet restore Hl7ToCcda.sln
+
+      - name: Test .NET solution
+        run: dotnet test Hl7ToCcda.sln --configuration Release --no-restore
+
+      - name: Lint web app
+        run: npm run lint:web
+
+      - name: Test web app
+        run: npm run test:web
+
+      - name: Build web app
+        run: npm run build:web
+
+      - name: Pack reusable library
+        run: dotnet pack src/Hl7ToCcda.Core/Hl7ToCcda.Core.csproj --configuration Release --no-restore -o artifacts/packages
+
+      - name: Smoke test packaged library
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_path="$(find artifacts/packages -maxdepth 1 -name 'Hl7ToCcda.Core.*.nupkg' | head -n 1)"
+          if [[ -z "$package_path" ]]; then
+            echo "Packaged library was not created."
+            exit 1
+          fi
+          package_version="$(basename "${package_path%.nupkg}" | sed 's/^Hl7ToCcda\.Core\.//')"
+          temp_dir="$(mktemp -d)"
+
+          dotnet new console -n ConsumerSmokeTest -o "$temp_dir/ConsumerSmokeTest" --framework net8.0
+          dotnet add "$temp_dir/ConsumerSmokeTest/ConsumerSmokeTest.csproj" package Hl7ToCcda.Core --version "$package_version" --source "$GITHUB_WORKSPACE/artifacts/packages"
+
+          cat <<'EOF' > "$temp_dir/ConsumerSmokeTest/Program.cs"
+          using Hl7ToCcda.Core;
+
+          internal static class Program
+          {
+              private static void Main()
+              {
+                  Hl7ToCcdaConversionRequest request = new("MSH|^~\\&");
+                  System.Console.WriteLine(typeof(IHl7ToCcdaConverter).FullName);
+                  System.Console.WriteLine(request.Hl7Message);
+              }
+          }
+          EOF
+
+          dotnet build "$temp_dir/ConsumerSmokeTest/ConsumerSmokeTest.csproj" --configuration Release
